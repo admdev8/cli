@@ -1,8 +1,8 @@
-const program = require('commander');
+const program = require('caporal');
 const backend = require('./backend');
 
 program
-    .version('0.0.1')
+    .version('0.0.2')
     .description('CLI for FeatureNinjas projects');
 
 program
@@ -20,5 +20,56 @@ program
     .action(() => {
         backend.deployFeatureSet();
     });
+
+/* ********************************
+ * 
+ * Admin Commands
+ * 
+ * ********************************/
+
+program
+    .command('app new')
+    .description('Create new app')
+    .argument('<name>', 'Creates a new app')
+    .option('--token <token>', 'The admin token given from the web account dashboard', undefined, undefined, true)
+    .action((args, options) => {
+        console.log(args);
+        console.log(options);
+    });
+
+program
+    .command('app list')
+    .description('List all apps and app tokens')
+    .option('--token <token>', 'The admin token given from the web account dashboard', undefined, undefined, true)
+    .action((args, options) => {
+        console.log(args);
+        console.log(options);
+    });
+
+/* ********************************
+ * 
+ * Project/App Commands
+ * 
+ * ********************************/
+
+program
+    .command('push')
+    .description('Pushes the given configuration file to the app with the given app-token')
+    .argument('<file>', 'Path to configuration file')
+    .option('--app-token <token>', 'The app token', undefined, undefined, true)
+    .action((args, options) => {
+        console.log(args);
+        console.log(options);
+    });
+
+program
+    .command('flags list')
+    .description('List all current flags based on the given app token')
+    .option('--token <token>', 'The app token', undefined, undefined, true)
+    .action((args, options) => {
+        console.log(args);
+        console.log(options);
+    });
+
 
 program.parse(process.argv);
