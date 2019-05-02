@@ -28,13 +28,12 @@ program
  * ********************************/
 
 program
-    .command('app new')
-    .description('Create new app')
-    .argument('<name>', 'Creates a new app')
-    .option('--token <token>', 'The admin token given from the web account dashboard', undefined, undefined, true)
+    .command('token list')
+    .description('Lists all tokens')
     .action((args, options) => {
-        console.log(args);
-        console.log(options);
+        backend.requestTokenList((result) => {
+            console.log(result);
+        });
     });
 
 program

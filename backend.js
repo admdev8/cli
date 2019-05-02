@@ -1,5 +1,64 @@
 const querystring = require('querystring');
-const https = require('https');
+const https = require('http');
+const NodeRequestClient = require('node-rest-client').Client;
+const inquirer = require('inquirer');
+
+var rr = new NodeRequestClient();
+
+/**
+ * @function [getValueOf]
+ * @param {*} feature Name of the feature
+ * @returns {JSON} Value of the feature toggle/flag
+ */
+const requestTokenList = (callback) => {
+
+    inquirer
+        .prompt([
+            {
+                type: 'input',
+                name: 'projectKey',
+                message: 'Project key'
+            }
+        ])
+        .then(answers => {
+
+            var projectKey = answers.projectKey;
+            
+            rr.get('http://localhost:61866/api/project/tokens/request', function(data, response) {
+                // console.log(data);
+                if (response.statusCode = 200) {
+                    inquirer
+                        .prompt([
+                            {
+                                type: 'input',
+                                name: 'otp',
+                                message: 'One time password (OTP)'
+                            }
+                        ])
+                        .then(answers => {
+                            console.log(answers);
+                        });
+                }
+                
+            });
+
+        });
+
+    
+
+    // https.get('http://localhost:61866/api/project/tokens/request', res => {
+    //     res.setEncoding('utf8');
+    //     var body = "";
+    //     res.on('data', data => {
+    //         body += data;
+    //     })
+    //     res.on('end', () => {
+    //         callback(body);
+    //     });
+    // });
+
+    // return { enabled: false };
+};
 
 /**
  * @function [getValueOf]
@@ -45,4 +104,4 @@ const deployFeatureSet = (path, environment) => {
     });
 };
 
-module.exports = { getValueOf, deployFeatureSet };
+module.exports = { requestTokenList, getValueOf, deployFeatureSet };
