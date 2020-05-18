@@ -15,6 +15,8 @@
     "@octokit/rest": "^17.9.0",
     "axios": "^0.19.2",
     "caporal": "^1.1.0",
+    "chalk": "^4.0.0",
+    "cli-spinner": "^0.2.10",
     "http-terminator": "^2.0.3",
     "inquirer": "^6.3.1",
     "open": "^7.0.3",

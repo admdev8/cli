@@ -3,21 +3,40 @@ const log = require('simple-node-logger').createSimpleLogger()
 const simpleGit = require('simple-git/promise')
 const git = simpleGit()
 const auth = require('../auth/auth')
+const Spinner = require('cli-spinner').Spinner
+const chalk = require('chalk')
 
 const init = async () => {
+  const spinner = new Spinner()
+  spinner.setSpinnerString('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏')
+
   try {
+    spinner.setSpinnerTitle('%s fetching info about your repository')
+    spinner.start()
+
+    // first, check if this is actually a git enabled directory, if not tell the user to do
+    // git init and git remote first
     checkIfGitDir()
 
-    // first, get the repository of the current directory
+    // second, get the repository of the current directory, check if this is a GitHub
+    // repository, if not give a hint
     const repository = await getRepository()
 
-    // second, register a web hook
+    spinner.stop(true)
+    console.log(chalk.green('✔') + ' repository info ok')
+
+    spinner.setSpinnerTitle(`%s connecting ${repository.repoFullName} to FeatureNinjas`)
+    spinner.start()
+    // third, register a web hook
     await registerWebHook(repository)
 
-    log.info('done')
+    spinner.stop(true)
+    console.log(chalk.green('✔') + ` repository ${repository.repoFullName} connected`)
   } catch (error) {
     log.error(error.message)
   }
+
+  spinner.stop(true)
 
   // b) config file
   // check for a valid .featureninjas.yml file
@@ -40,8 +59,8 @@ async function registerWebHook (repository) {
     owner: repository.owner,
     repo: repository.repo
   })
-  console.log('list hooks')
-  console.log(hooks)
+  log.debug('list hooks')
+  log.debug(hooks)
 
   // check whether the hook already exists
   let createWebHook = true
@@ -57,8 +76,8 @@ async function registerWebHook (repository) {
       }
     } else {
       // hook does not exist yet, create
-      console.log('hook does not exist, create')
-      console.log(repository)
+      log.debug('hook does not exist, create')
+      log.debug(repository)
     }
   }
 
@@ -72,16 +91,16 @@ async function registerWebHook (repository) {
         content_type: 'json'
       }
     })
-    console.log(response)
+    log.debug(response)
   }
 }
 
 function checkIfGitDir () {
   try {
     git.checkIsRepo()
-    log.info('a.1 current dir is under git')
+    log.debug('current dir is under git')
   } catch (error) {
-    throw new Error('a.1 current dir is not under git')
+    throw new Error('current dir is not under git')
   }
 }
 
@@ -112,7 +131,7 @@ async function getRepository () {
       repo: repository.data.name,
       repoFullName: repository.data.full_name
     }
-    log.info(JSON.stringify(result))
+    log.debug(JSON.stringify(result))
     return result
   } catch (error) {
     log.debug(error)

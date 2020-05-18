@@ -7,8 +7,6 @@ const net = require('http')
 const URL = require('url').URL
 const httpTerminator = require('http-terminator')
 
-log.setLevel('debug')
-
 var accessToken = ''
 var octokitUser = null
 
@@ -56,7 +54,6 @@ var authenticateOctokitUser = async function () {
   octokitUser = new Octokit({
     auth: accessToken
   })
-  console.log(accessToken)
 }
 
 function serverOn (srv, event) {
