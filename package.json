@@ -6,11 +6,22 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "fn": "app.js"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@octokit/rest": "^17.9.0",
+    "axios": "^0.19.2",
     "caporal": "^1.1.0",
+    "http-terminator": "^2.0.3",
     "inquirer": "^6.3.1",
-    "node-rest-client": "^3.1.0"
+    "open": "^7.0.3",
+    "simple-git": "^2.4.0",
+    "simple-node-logger": "^18.12.24"
+  },
+  "devDependencies": {
+    "standard": "^14.3.4"
   }
 }
