@@ -1,5 +1,4 @@
-
-const log = require('simple-node-logger').createSimpleLogger()
+const log = require('../helpers/log')
 const simpleGit = require('simple-git/promise')
 const git = simpleGit()
 const auth = require('../auth/auth')
@@ -8,9 +7,7 @@ const chalk = require('chalk')
 const fs = require('fs')
 const fsp = require('fs').promises
 const inquirer = require('inquirer')
-
-// default endpoint
-let apiEndpoint = 'https://api.featureninjas.com'
+const env = require('../helpers/env')
 
 const init = async () => {
   const spinner = new Spinner()
@@ -174,7 +171,7 @@ async function registerWebHook (repository) {
     // this loop will only start when there is at least one webhook. if there is none,
     // then createWebHook will stay true and the webhook will be created below the loop
     var hook = hooks.data[i]
-    if (hook !== null && hook.config.url === `${apiEndpoint}/github` && hook.events.includes('push')) {
+    if (hook !== null && hook.config.url === `${env.apiEndpoint}/github` && hook.events.includes('push')) {
       // webhook set already, activate if not active
       createWebHook = false
       if (!hook.active) {
@@ -193,7 +190,7 @@ async function registerWebHook (repository) {
       owner: repository.owner,
       repo: repository.repo,
       config: {
-        url: `${apiEndpoint}/github`,
+        url: `${env.apiEndpoint}/github`,
         content_type: 'json'
       }
     })
@@ -205,8 +202,4 @@ const enableDebug = function () {
   log.setLevel('debug')
 }
 
-const setApiEndpoint = function (endpoint) {
-  apiEndpoint = endpoint
-}
-
-module.exports = { init, enableDebug, setApiEndpoint }
+module.exports = { init, enableDebug }

@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
 const program = require('caporal')
+const env = require('./helpers/env')
 const init = require('./commands/init')
+const logger = require('./helpers/log')
+const log = require('./helpers/log')
 
 program
   .version('0.0.2')
@@ -9,15 +12,16 @@ program
 
 program
   .command('init')
-  .option('-d', 'Enables debug mode', program.BOOL)
+  .option('--log-level <log-level>', 'Set log level', /^debug|info|warn|error$/)
   .option('--api-endpoint', 'Allows to override the default api endpoint https://api.featureninjas.com', /.*/g)
   .description('Initializes the curreng GitHub repository for feature flags')
   .action((args, options) => {
-    if (options.d === true) {
-      init.enableDebug()
+    if (options.logLevel !== false) {
+      log.debug('setting log level to debug')
+      logger.setLogLevel(options.logLevel)
     }
     if (options.apiEndpoint !== false) {
-      init.setApiEndpoint(options.apiEndpoint)
+      env.apiEndpoint = options.apiEndpoint
     }
     init.init()
   })

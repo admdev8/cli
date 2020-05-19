@@ -1,4 +1,4 @@
-const log = require('simple-node-logger').createSimpleLogger()
+const log = require('../helpers/log')
 const env = require('../helpers/env')
 const { Octokit } = require('@octokit/rest')
 const axios = require('axios')
@@ -11,6 +11,7 @@ var accessToken = ''
 var octokitUser = null
 
 var authenticateOctokitUser = async function () {
+  log.debug('authenticating user')
   const rndstate = 'abcd'
   var code = ''
 
