@@ -1,3 +1,6 @@
+.featureninjas.yml
+flags.json5
+
 # Logs
 logs
 *.log
