@@ -1,0 +1,13 @@
+# Version information (is always 1.0)
+version: 1.0
+
+# (mandatory)
+# Feature flags file name
+#   Contains the name of the file with the feature flags.
+file: flags.json
+
+# (optional)
+# Secret
+#   If this is set, then you have to provide this secret via every request to
+#   get your feature flag configuration in the HTTPS header X-FeatureNinjas-Secret
+#secret: <your personal secret>

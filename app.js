@@ -10,10 +10,14 @@ program
 program
   .command('init')
   .option('-d', 'Enables debug mode', program.BOOL)
+  .option('--api-endpoint', 'Allows to override the default api endpoint https://api.featureninjas.com', /.*/g)
   .description('Initializes the curreng GitHub repository for feature flags')
   .action((args, options) => {
     if (options.d === true) {
       init.enableDebug()
+    }
+    if (options.apiEndpoint !== false) {
+      init.setApiEndpoint(options.apiEndpoint)
     }
     init.init()
   })

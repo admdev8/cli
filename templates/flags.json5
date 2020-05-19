@@ -1,0 +1,6 @@
+{
+  // Yes, we support comments
+  "myAwesomeFeatureEnabled": true,
+  "myAwesomeFeatureInterval": 10000,
+  "myAwesomeFeatureFormats": "xlsx|psql|csv"
+}

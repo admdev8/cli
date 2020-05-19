@@ -5,6 +5,12 @@ const git = simpleGit()
 const auth = require('../auth/auth')
 const Spinner = require('cli-spinner').Spinner
 const chalk = require('chalk')
+const fs = require('fs')
+const fsp = require('fs').promises
+const inquirer = require('inquirer')
+
+// default endpoint
+let apiEndpoint = 'https://api.featureninjas.com'
 
 const init = async () => {
   const spinner = new Spinner()
@@ -14,9 +20,20 @@ const init = async () => {
     spinner.setSpinnerTitle('%s fetching info about your repository')
     spinner.start()
 
+    // -----------------
+    // Check if current dir is git dir
+    // -----------------
+
     // first, check if this is actually a git enabled directory, if not tell the user to do
     // git init and git remote first
-    checkIfGitDir()
+    if (!isGitDir()) {
+      console.log(chalk.red('✘') + ' current dir is no git dir. Do ' + chalk.yellow('git init') + ' and ' + chalk.yellow('git remote') + ' first')
+      return
+    }
+
+    // -----------------
+    // get repository info
+    // -----------------
 
     // second, get the repository of the current directory, check if this is a GitHub
     // repository, if not give a hint
@@ -25,82 +42,57 @@ const init = async () => {
     spinner.stop(true)
     console.log(chalk.green('✔') + ' repository info ok')
 
+    // -----------------
+    // register webhook
+    // -----------------
+
     spinner.setSpinnerTitle(`%s connecting ${repository.repoFullName} to FeatureNinjas`)
     spinner.start()
-    // third, register a web hook
     await registerWebHook(repository)
 
     spinner.stop(true)
     console.log(chalk.green('✔') + ` repository ${repository.repoFullName} connected`)
+
+    // -----------------
+    // Verify config file
+    // -----------------
+
+    if (!fs.existsSync('.featureninjas.yml')) {
+      const resultCreateConfigFile = await inquirer.prompt([{
+        type: 'confirm',
+        name: 'createConfigFile',
+        message: 'No config file found. Create default?'
+      }, {
+        type: 'confirm',
+        name: 'createFlagsFile',
+        message: 'Create sample flags file (flags.json5)?'
+      }])
+      if (resultCreateConfigFile.createConfigFile) {
+        const configTemplate = await fsp.readFile('./templates/configFile.yml')
+        await fsp.writeFile('.featureninjas.yml', configTemplate)
+
+        if (resultCreateConfigFile.createFlagsFile) {
+          const flagsTemplate = await fsp.readFile('./templates/flags.json5')
+          await fsp.writeFile('flags.json5', flagsTemplate)
+        }
+      }
+    }
   } catch (error) {
     log.error(error.message)
   }
 
   spinner.stop(true)
-
-  // b) config file
-  // check for a valid .featureninjas.yml file
-  // 1. Check that the current dir is the root dir of the repo
-  // 2. Check that the current dir contains the .featureninjas.yml file
-  //    -> yes: go to step c)
-  //    -> no: ask for parameters to create one
-
-  // c) check for a valid flags.json file
-
-  /* octokit.apps.listInstallationsForAuthenticatedUser()
-  .then(({ data }) => {
-    console.log(data);
-  }); */
 }
 
-async function registerWebHook (repository) {
-  var octokit = await auth.getOctokitUserClient()
-  var hooks = await octokit.repos.listHooks({
-    owner: repository.owner,
-    repo: repository.repo
-  })
-  log.debug('list hooks')
-  log.debug(hooks)
-
-  // check whether the hook already exists
-  let createWebHook = true
-  for (var i = 0; i < hooks.data.length; i++) {
-    // this loop will only start when there is at least one webhook. if there is none,
-    // then createWebHook will stay true and the webhook will be created below the loop
-    var hook = hooks.data[i]
-    if (hook !== null && hook.config.url === 'https://api.featureninjas.com/github' && hook.events.includes('push')) {
-      // webhook set already, activate if not active
-      createWebHook = false
-      if (!hook.active) {
-        // TODO activate the hook
-      }
-    } else {
-      // hook does not exist yet, create
-      log.debug('hook does not exist, create')
-      log.debug(repository)
-    }
-  }
-
-  // create the webhook if required
-  if (createWebHook) {
-    var response = await octokit.repos.createHook({
-      owner: repository.owner,
-      repo: repository.repo,
-      config: {
-        url: 'https://api.featureninjas.com/github',
-        content_type: 'json'
-      }
-    })
-    log.debug(response)
-  }
-}
-
-function checkIfGitDir () {
+function isGitDir () {
   try {
     git.checkIsRepo()
     log.debug('current dir is under git')
+    return true
   } catch (error) {
-    throw new Error('current dir is not under git')
+    log.debug('current dir is not under git')
+    log.debug('error message thrown: ' + error.message)
+    return false
   }
 }
 
@@ -139,8 +131,54 @@ async function getRepository () {
   }
 }
 
+async function registerWebHook (repository) {
+  var octokit = await auth.getOctokitUserClient()
+  var hooks = await octokit.repos.listHooks({
+    owner: repository.owner,
+    repo: repository.repo
+  })
+  log.debug('list hooks')
+  log.debug(hooks)
+
+  // check whether the hook already exists
+  let createWebHook = true
+  for (var i = 0; i < hooks.data.length; i++) {
+    // this loop will only start when there is at least one webhook. if there is none,
+    // then createWebHook will stay true and the webhook will be created below the loop
+    var hook = hooks.data[i]
+    if (hook !== null && hook.config.url === `${apiEndpoint}/github` && hook.events.includes('push')) {
+      // webhook set already, activate if not active
+      createWebHook = false
+      if (!hook.active) {
+        // TODO activate the hook
+      }
+    } else {
+      // hook does not exist yet, create
+      log.debug('hook does not exist, create')
+      log.debug(repository)
+    }
+  }
+
+  // create the webhook if required
+  if (createWebHook) {
+    var response = await octokit.repos.createHook({
+      owner: repository.owner,
+      repo: repository.repo,
+      config: {
+        url: `${apiEndpoint}/github`,
+        content_type: 'json'
+      }
+    })
+    log.debug(response)
+  }
+}
+
 const enableDebug = function () {
   log.setLevel('debug')
 }
 
-module.exports = { init, enableDebug }
+const setApiEndpoint = function (endpoint) {
+  apiEndpoint = endpoint
+}
+
+module.exports = { init, enableDebug, setApiEndpoint }
