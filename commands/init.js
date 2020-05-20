@@ -3,11 +3,13 @@ const simpleGit = require('simple-git/promise')
 const git = simpleGit()
 const auth = require('../auth/auth')
 const Spinner = require('cli-spinner').Spinner
-const chalk = require('chalk')
 const fs = require('fs')
 const fsp = require('fs').promises
 const inquirer = require('inquirer')
 const env = require('../helpers/env')
+const axios = require('axios')
+const out = require('../helpers/out')
+const chalk = require('chalk')
 
 const init = async () => {
   const spinner = new Spinner()
@@ -24,7 +26,7 @@ const init = async () => {
     // first, check if this is actually a git enabled directory, if not tell the user to do
     // git init and git remote first
     if (!isGitDir()) {
-      console.log(chalk.red('✘') + ' current dir is no git dir. Do ' + chalk.yellow('git init') + ' and ' + chalk.yellow('git remote') + ' first')
+      out.failOneLiner('current dir is no git dir. Do ' + chalk.yellow('git init') + ' and ' + chalk.yellow('git remote') + ' first')
       return
     }
 
@@ -35,9 +37,26 @@ const init = async () => {
     // second, get the repository of the current directory, check if this is a GitHub
     // repository, if not give a hint
     const repository = await getRepository()
+    if (repository === undefined || repository === null) {
+      out.failOneLiner('this repo is no GitHub repository. FN currently only works with GitHub.')
+      return
+    }
 
     spinner.stop(true)
-    console.log(chalk.green('✔') + ' repository info ok')
+    out.successOneLiner('repository info ok')
+
+    // -----------------
+    // register user/account
+    // -----------------
+
+    spinner.setSpinnerTitle('%s checking user and account info')
+    spinner.start()
+    // if this is a new user, register this user in the FN database
+    const registerResult = await register(repository)
+    log.debug(registerResult.data)
+
+    spinner.stop(true)
+    out.successOneLiner('user and account created/updated')
 
     // -----------------
     // register webhook
@@ -45,10 +64,10 @@ const init = async () => {
 
     spinner.setSpinnerTitle(`%s connecting ${repository.repoFullName} to FeatureNinjas`)
     spinner.start()
-    await registerWebHook(repository)
+    const webHookRegistered = await registerWebHook(repository)
 
     spinner.stop(true)
-    console.log(chalk.green('✔') + ` repository ${repository.repoFullName} connected`)
+    out.successOneLiner(`repository ${repository.repoFullName} connected`)
 
     // -----------------
     // Verify config file
@@ -79,30 +98,10 @@ const init = async () => {
     // Print welcome info
     // ----------------
 
-    console.log()
-    console.log('Welcome to')
-    console.log(' ______         _                  _   _ _       _')
-    console.log('|  ____|       | |                | \\ | (_)     (_)')
-    console.log('| |__ ___  __ _| |_ _   _ _ __ ___|  \\| |_ _ __  _  __ _ ___')
-    console.log('|  __/ _ \\/ _` | __| | | | \'__/ _ \\ . ` | | \'_ \\| |/ _` / __|')
-    console.log('| | |  __/ (_| | |_| |_| | | |  __/ |\\  | | | | | | (_| \\__ \\')
-    console.log('|_|  \\___|\\__,_|\\__|\\__,_|_|  \\___|_| \\_|_|_| |_| |\\__,_|___/')
-    console.log('                                               _/ |')
-    console.log('                                              |__/           ')
-    console.log('')
-    console.log('You are now on the ' + chalk.black.bgGreen('STARTER PLAN'))
-    console.log('Check out ' + chalk.blue.underline('https://featureninjas.com') + ' for more info on the PRO plan which includes rollout strategies and extended logic')
-    console.log('')
-    console.log(chalk.blue('Next Steps:'))
-    console.log(' 1) Add or updated flags in flags.json5')
-    console.log(' 2) Push changes to your repository using git add/commit/push')
-    console.log(' 3) Use our API to retrieve your flags')
-    console.log('    Example: curl -X GET \\')
-    console.log('               https://api.featureninjas.com/flags/<account-name>/<repo-name>/<branch_ref_name> \\')
-    console.log('               -H \'X-FeatureNinjas-Secret: <secret>\'')
-    console.log('')
-
+    out.showWelcomeMessage(registerResult.data, webHookRegistered)
   } catch (error) {
+    console.error(error)
+
     log.error(error.message)
   }
 
@@ -151,8 +150,30 @@ async function getRepository () {
     log.debug(JSON.stringify(result))
     return result
   } catch (error) {
+    console.error(error)
+
     log.debug(error)
     throw new Error('Could not load repository because: ' + error.message + ' (reason: either no remote to GitHub added or another SCM instead of GitHub used)')
+  }
+}
+
+async function register (repository) {
+  try {
+    const octokitUser = await auth.getOctokitUserClient()
+
+    const user = await octokitUser.users.getAuthenticated()
+
+    // send user and repository to fn api to register this new user if the user doesn't exist yet (fn-api will handle this)
+    const result = await axios.post(`${env.apiEndpoint}/cli/register`, {
+      user: user.data,
+      token: auth.getAccessToken(),
+      repo: repository
+    })
+    log.debug(result)
+    return result
+  } catch (error) {
+    log.debug(error)
+    throw new Error('Could not get current user because: ' + error.message)
   }
 }
 
@@ -171,6 +192,10 @@ async function registerWebHook (repository) {
     // this loop will only start when there is at least one webhook. if there is none,
     // then createWebHook will stay true and the webhook will be created below the loop
     var hook = hooks.data[i]
+    log.debug(hook)
+    log.debug(env.apiEndpoint)
+    log.debug(hook.events.includes('push'))
+    log.debug(hook !== null && hook.config.url === `${env.apiEndpoint}/github` && hook.events.includes('push'))
     if (hook !== null && hook.config.url === `${env.apiEndpoint}/github` && hook.events.includes('push')) {
       // webhook set already, activate if not active
       createWebHook = false
@@ -196,6 +221,8 @@ async function registerWebHook (repository) {
     })
     log.debug(response)
   }
+
+  return createWebHook
 }
 
 const enableDebug = function () {

@@ -70,6 +70,11 @@ var getOctokitUserClient = async function () {
   return octokitUser
 }
 
+var getAccessToken = function () {
+  return accessToken
+}
+
 module.exports = {
-  getOctokitUserClient
+  getOctokitUserClient,
+  getAccessToken
 }

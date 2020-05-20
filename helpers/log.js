@@ -1,12 +1,16 @@
 
 const logger = require('simple-node-logger').createSimpleLogger()
 
+let logEnabled = false
+
 var setLogLevel = function (logLevel) {
   logger.setLevel(logLevel)
 }
 
 var debug = function (message) {
-  logger.debug(message)
+  if (logEnabled) {
+    logger.debug(message)
+  }
 }
 
 var info = function (message) {
@@ -14,11 +18,19 @@ var info = function (message) {
 }
 
 var warn = function (message) {
-  logger.warn(message)
+  if (logEnabled) {
+    logger.warn(message)
+  }
 }
 
 var error = function (message, error) {
-  logger.error(message, error)
+  if (logEnabled) {
+    logger.error(message, error)
+  }
 }
 
-module.exports = { debug, info, warn, error, setLogLevel }
+var enableLog = function () {
+  logEnabled = true
+}
+
+module.exports = { debug, info, warn, error, setLogLevel, enableLog }
