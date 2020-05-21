@@ -1,11 +1,11 @@
 {
-  "name": "@featureninjas/fn-cli",
+  "name": "@featureninjas/cli",
   "version": "0.1.0",
   "description": "CLI for FeatureNinjas",
   "bin": {
     "fn": "app.js"
   },
-  "author": "",
+  "author": "FeatureNinjas",
   "license": "GPLv3",
   "dependencies": {
     "@octokit/rest": "^17.9.0",
