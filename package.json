@@ -1,16 +1,12 @@
 {
   "name": "@featureninjas/fn-cli",
   "version": "1.0.0",
-  "description": "CLI to manage featureninjas projects",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "description": "CLI for FeatureNinjas",
   "bin": {
     "fn": "app.js"
   },
   "author": "",
-  "license": "ISC",
+  "license": "GPLv3",
   "dependencies": {
     "@octokit/rest": "^17.9.0",
     "axios": "^0.19.2",
