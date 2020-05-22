@@ -33,8 +33,9 @@ var authenticateOctokitUser = async function () {
 
     code = queryData.get('code')
 
-    res.writeHead(200, { 'Content-Type': 'text/plain' })
-    res.end('yes!')
+    // res.writeHead(200, { 'Content-Type': 'text/plain' })
+    res.writeHead(301, { Location: env.webEndpoint + '/dashboard' })
+    res.end()
 
     await ht.terminate()
   })

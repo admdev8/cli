@@ -10,6 +10,7 @@ const pjson = require('./package.json')
 program
   .option('-ll, --log-level <log-level>', 'Set log level', /^debug|info|warn|error$/)
   .option('--api-endpoint <api-endpoint>', 'Allows to override the default api endpoint https://api.featureninjas.com', /.*/g)
+  .option('--web-endpoint <web-endpoint>', 'Allows to override the default web endpoint https://featureninjas.com', /.*/g)
 
 program
   .version(pjson.version)
@@ -22,6 +23,7 @@ program
   .action(() => {
     initLog()
     initApiEndpoint()
+    initWebEndpoint()
     init.run()
   })
 
@@ -31,6 +33,7 @@ program
   .action(() => {
     initLog()
     initApiEndpoint()
+    initWebEndpoint()
     disconnect.run()
   })
 
@@ -46,5 +49,11 @@ function initLog () {
 function initApiEndpoint () {
   if (program.apiEndpoint !== undefined) {
     env.apiEndpoint = program.apiEndpoint
+  }
+}
+
+function initWebEndpoint () {
+  if (program.webEndpoint !== undefined) {
+    env.webEndpoint = program.webEndpoint
   }
 }
