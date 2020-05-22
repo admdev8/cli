@@ -26,10 +26,4 @@ program
     init.init()
   })
 
-program
-  .command('info')
-  .action((args, options) => {
-    console.log('FeatureNinjas CLI v0.0.9')
-  })
-
 program.parse(process.argv)
