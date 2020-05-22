@@ -4,7 +4,7 @@ version: 1.0
 # (mandatory)
 # Feature flags file name
 #   Contains the name of the file with the feature flags.
-file: flags.json
+file: flags.json5
 
 # (optional)
 # Secret
