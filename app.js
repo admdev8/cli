@@ -4,9 +4,10 @@ const program = require('caporal')
 const env = require('./helpers/env')
 const init = require('./commands/init')
 const logger = require('./helpers/log')
+const pjson = require('./package.json')
 
 program
-  .version('0.0.2')
+  .version(pjson.version)
   .description('CLI for FeatureNinjas projects')
 
 program
