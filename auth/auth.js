@@ -45,7 +45,14 @@ var authenticateOctokitUser = async function () {
 
   await srv.listen(0)
 
-  await open(`http://127.0.0.1:61877/cli/oauth/authorize?port=${srv.address().port}&state=${rndstate}`, { wait: false, url: true })
+  const openOptions = {
+    wait: false,
+    url: true
+  }
+  if (env.browser !== null) {
+    openOptions.app = env.browser
+  }
+  await open(`http://127.0.0.1:61877/cli/oauth/authorize?port=${srv.address().port}&state=${rndstate}`, openOptions)
 
   await serverOn(srv, 'close')
   log.debug('server terminated')

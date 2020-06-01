@@ -51,8 +51,13 @@ var showWelcomeMessage = function (registerResult, webHookRegistered) {
   console.log('')
 }
 
+var printRepoInfo = function (repository) {
+  console.log(repository)
+}
+
 module.exports = {
   successOneLiner,
   failOneLiner,
-  showWelcomeMessage
+  showWelcomeMessage,
+  printRepoInfo
 }
