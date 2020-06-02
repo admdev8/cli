@@ -34,7 +34,7 @@ var authenticateOctokitUser = async function () {
     code = queryData.get('code')
 
     // res.writeHead(200, { 'Content-Type': 'text/plain' })
-    res.writeHead(301, { Location: env.apiEndpoint + '/web/dashboard' })
+    res.writeHead(301, { Location: 'https://docs.featureninjas.com/get-started/' })
     res.end()
 
     await ht.terminate()
