@@ -94,10 +94,12 @@ async function register (repository) {
     const octokitUser = await auth.getOctokitUserClient()
 
     const user = await octokitUser.users.getAuthenticated()
+    const emails = await octokitUser.users.listEmails()
 
     // send user and repository to fn api to register this new user if the user doesn't exist yet (fn-api will handle this)
     const result = await axios.post(`${env.apiEndpoint}/repos`, {
       user: user.data,
+      emails: emails.data,
       token: auth.getAccessToken(),
       repo: repository
     })
