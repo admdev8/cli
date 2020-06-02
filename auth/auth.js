@@ -52,12 +52,12 @@ var authenticateOctokitUser = async function () {
   if (env.browser !== null) {
     openOptions.app = env.browser
   }
-  await open(`http://${env.apiEndpoint}/auth/oauth/authorize?port=${srv.address().port}&state=${rndstate}`, openOptions)
+  await open(`${env.apiEndpoint}/auth/oauth/authorize?port=${srv.address().port}&state=${rndstate}`, openOptions)
 
   await serverOn(srv, 'close')
   log.debug('server terminated')
 
-  var response = await axios.post(`http://${env.apiEndpoint}/auth/oauth/access_token?code=${code}&state=${rndstate}`)
+  var response = await axios.post(`${env.apiEndpoint}/auth/oauth/access_token?code=${code}&state=${rndstate}`)
   accessToken = response.data.access_token
 
   octokitUser = new Octokit({
