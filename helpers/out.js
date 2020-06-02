@@ -40,7 +40,7 @@ var showWelcomeMessage = function (registerResult, webHookRegistered) {
     if (webHookRegistered) {
       console.log('The repository was ' + chalk.black.bgGreen('successfully') + ' registered')
     } else {
-      console.log('The repository is registered on our side already')
+      console.log('The repository is connected already')
     }
   } else if (registerResult.userExists === false && registerResult.accountExists === false) {
     printTitle()
