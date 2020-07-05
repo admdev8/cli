@@ -8,7 +8,7 @@ const reposGetRepoInfo = async function (repository) {
   spinner.setSpinnerTitle('%s get connected repo info')
   spinner.start()
 
-  const remoteRepository = await axios.get(`${env.apiEndpoint}/repos/${repository.repoFullName}`)
+  const remoteRepository = await axios.get(`${env.apiEndpoint}/repos/${repository.full_name}`)
   if (remoteRepository === null || remoteRepository === undefined) {
     spinner.stop(true)
     return null

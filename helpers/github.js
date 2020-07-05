@@ -52,9 +52,10 @@ const getRepository = async function () {
 
     const result = {
       id: repository.data.id,
-      owner: repository.data.owner.login,
+      ownerLogin: repository.data.owner.login,
       ownerId: repository.data.owner.id,
       ownerType: repository.data.owner.type,
+      ownerAvatarUrl: repository.data.owner.avatar_url,
       repo: repository.data.name,
       repoFullName: repository.data.full_name
     }
@@ -62,7 +63,7 @@ const getRepository = async function () {
 
     spinner.stop(true)
     out.successOneLiner('repository info ok')
-    return result
+    return repository.data
   } catch (error) {
     spinner.stop(true)
     out.failOneLiner('this repo is no GitHub repository. FN currently only works with GitHub.')
@@ -75,14 +76,14 @@ const getRepository = async function () {
 const registerWebHook = async function (repository) {
   const spinner = new Spinner()
   spinner.setSpinnerString('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏')
-  spinner.setSpinnerTitle(`%s connecting ${repository.repoFullName} to FeatureNinjas`)
+  spinner.setSpinnerTitle(`%s connecting ${repository.full_name} to FeatureNinjas`)
   spinner.start()
 
   try {
     const octokit = await auth.getOctokitUserClient()
     const hooks = await octokit.repos.listHooks({
-      owner: repository.owner,
-      repo: repository.repo
+      owner: repository.owner.login,
+      repo: repository.name
     })
     log.debug('list hooks')
     log.debug(hooks)
@@ -113,8 +114,8 @@ const registerWebHook = async function (repository) {
     // create the webhook if required
     if (createWebHook) {
       var response = await octokit.repos.createHook({
-        owner: repository.owner,
-        repo: repository.repo,
+        owner: repository.owner.login,
+        repo: repository.name,
         config: {
           url: `${env.apiEndpoint}/github`,
           content_type: 'json'
@@ -124,14 +125,14 @@ const registerWebHook = async function (repository) {
     }
 
     spinner.stop(true)
-    out.successOneLiner(`repository ${repository.repoFullName} connected`)
+    out.successOneLiner(`repository ${repository.full_name} connected`)
 
     return createWebHook
   } catch (error) {
     log.error(error)
 
     spinner.stop(true)
-    out.failOneLiner(`repository ${repository.repoFullName} could not connected`)
+    out.failOneLiner(`repository ${repository.full_name} could not connected`)
 
     return null
   }
@@ -147,8 +148,8 @@ const removeWebHook = async function (repository) {
   try {
     const octokit = await auth.getOctokitUserClient()
     const hooks = await octokit.repos.listHooks({
-      owner: repository.owner,
-      repo: repository.repo
+      owner: repository.owner.login,
+      repo: repository.name
     })
     log.debug('list hooks')
     log.debug(hooks)
@@ -168,8 +169,8 @@ const removeWebHook = async function (repository) {
       out.failOneLiner('repository not connected')
     } else {
       const response = await octokit.repos.deleteHook({
-        owner: repository.owner,
-        repo: repository.repo,
+        owner: repository.owner.login,
+        repo: repository.name,
         hook_id: hookId
       })
       log.debug(response)
