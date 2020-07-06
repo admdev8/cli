@@ -52,7 +52,11 @@ var authenticateOctokitUser = async function () {
   if (env.browser !== null) {
     openOptions.app = env.browser
   }
-  await open(`${env.apiEndpoint}/auth/oauth/authorize?port=${srv.address().port}&state=${rndstate}`, openOptions)
+  let authUrl = `${env.apiEndpoint}/auth/oauth/authorize?port=${srv.address().port}&state=${rndstate}`
+  if (env.login !== null) {
+    authUrl += `&login=${env.login}`
+  }
+  await open(authUrl, openOptions)
 
   await serverOn(srv, 'close')
   log.debug('server terminated')

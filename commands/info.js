@@ -1,5 +1,4 @@
 const log = require('../helpers/log')
-const Spinner = require('cli-spinner').Spinner
 const axios = require('axios')
 const out = require('../helpers/out')
 const github = require('../helpers/github')
@@ -11,9 +10,6 @@ axios.defaults.validateStatus = function () {
 }
 
 const run = async () => {
-  const spinner = new Spinner()
-  spinner.setSpinnerString('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏')
-
   try {
     // -----------------
     // get local repository info
@@ -41,8 +37,6 @@ const run = async () => {
 
     log.error(error.message)
   }
-
-  spinner.stop(true)
 }
 
 module.exports = {

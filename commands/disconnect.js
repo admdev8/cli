@@ -18,6 +18,7 @@ async function disconnect (repository) {
   spinner.setSpinnerString('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏')
   spinner.setSpinnerTitle('%s remove repo')
   spinner.start()
+  log.setSpinner(spinner)
 
   try {
     // send user and repository to fn api to register this new user if the user doesn't exist yet (fn-api will handle this)

@@ -24,6 +24,7 @@ const getRepository = async function () {
   spinner.setSpinnerString('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏')
   spinner.setSpinnerTitle('%s fetching info about your repository')
   spinner.start()
+  log.setSpinner(spinner)
 
   try {
     const resultIsGitDir = await isGitDir()
@@ -78,6 +79,7 @@ const registerWebHook = async function (repository) {
   spinner.setSpinnerString('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏')
   spinner.setSpinnerTitle(`%s connecting ${repository.full_name} to FeatureNinjas`)
   spinner.start()
+  log.setSpinner(spinner)
 
   try {
     const octokit = await auth.getOctokitUserClient()
@@ -143,6 +145,7 @@ const removeWebHook = async function (repository) {
   spinner.setSpinnerString('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏')
   spinner.setSpinnerTitle('%s disconnecting')
   spinner.start()
+  log.setSpinner(spinner)
 
   let success = false
   try {

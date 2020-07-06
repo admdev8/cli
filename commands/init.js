@@ -89,6 +89,7 @@ async function register (repository) {
   spinner.setSpinnerString('⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏')
   spinner.setSpinnerTitle('%s checking user and account info')
   spinner.start()
+  log.setSpinner(spinner)
 
   try {
     const octokitUser = await auth.getOctokitUserClient()

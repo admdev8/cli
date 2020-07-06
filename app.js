@@ -8,11 +8,13 @@ const info = require('./commands/info')
 const logger = require('./helpers/log')
 const pjson = require('./package.json')
 
+// /^debug|info|warn|error$/
 program
-  .option('-ll, --log-level <log-level>', 'Set log level', /^debug|info|warn|error$/)
+  .option('-v, --verbose', 'Print verbose output')
   .option('--api-endpoint <api-endpoint>', 'Allows to override the default api endpoint https://api.featureninjas.com', /.*/g)
   .option('--web-endpoint <web-endpoint>', 'Allows to override the default web endpoint https://featureninjas.com', /.*/g)
   .option('--browser <browser>', 'The browser to use for authenticating with GitHub', /.*/g)
+  .option('-l, --login <login>', 'Set the user to login with', /.*/g)
 
 program
   .version(pjson.version)
@@ -27,6 +29,7 @@ program
     initApiEndpoint()
     initWebEndpoint()
     initBrowser()
+    initLogin()
     init.run()
   })
 
@@ -39,6 +42,7 @@ program
     initApiEndpoint()
     initWebEndpoint()
     initBrowser()
+    initLogin()
     disconnect.run()
   })
 
@@ -50,15 +54,16 @@ program
     initApiEndpoint()
     initWebEndpoint()
     initBrowser()
+    initLogin()
+    printEnv()
     info.run()
   })
 
 program.parse(process.argv)
 
 function initLog () {
-  logger.enableLog()
-  if (program.logLevel !== undefined) {
-    logger.setLogLevel(program.logLevel)
+  if (program.verbose !== undefined) {
+    logger.enableLog()
   }
 }
 
@@ -78,4 +83,20 @@ function initBrowser () {
   if (program.browser !== undefined) {
     env.browser = program.browser
   }
+}
+
+function initLogin () {
+  if (program.login !== undefined) {
+    env.login = program.login
+  }
+}
+
+function printEnv () {
+  logger.debug('env:')
+  logger.debug(`host:        ${env.host}`)
+  logger.debug(`api:         ${env.api}`)
+  logger.debug(`apiEndpoint: ${env.apiEndpoint}`)
+  logger.debug(`webEndpoint: ${env.webEndpoint}`)
+  logger.debug(`browser:     ${env.browser}`)
+  logger.debug(`login:       ${env.login}`)
 }
