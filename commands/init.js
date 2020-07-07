@@ -64,7 +64,7 @@ const run = async () => {
         await fsp.writeFile('.featureninjas.yml', configTemplate)
 
         if (resultCreateConfigFile.createFlagsFile) {
-          const flagsTemplate = await fsp.readFile(path.join(__dirname, '../templates/flags.json5'))
+          const flagsTemplate = await fsp.readFile(path.join(__dirname, '../templates/sampleFlags.json5'))
           await fsp.writeFile('flags.json5', flagsTemplate)
         }
       }
