@@ -83,7 +83,7 @@ const registerWebHook = async function (repository) {
 
   try {
     const octokit = await auth.getOctokitUserClient()
-    const hooks = await octokit.repos.listHooks({
+    const hooks = await octokit.repos.listWebhooks({
       owner: repository.owner.login,
       repo: repository.name
     })
@@ -115,7 +115,7 @@ const registerWebHook = async function (repository) {
 
     // create the webhook if required
     if (createWebHook) {
-      var response = await octokit.repos.createHook({
+      var response = await octokit.repos.createWebhook({
         owner: repository.owner.login,
         repo: repository.name,
         config: {
@@ -150,7 +150,7 @@ const removeWebHook = async function (repository) {
   let success = false
   try {
     const octokit = await auth.getOctokitUserClient()
-    const hooks = await octokit.repos.listHooks({
+    const hooks = await octokit.repos.listWebhooks({
       owner: repository.owner.login,
       repo: repository.name
     })
