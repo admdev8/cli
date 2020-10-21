@@ -10,7 +10,7 @@
   "dependencies": {
     "@octokit/rest": "^17.9.0",
     "axios": "^0.19.2",
-    "chalk": "^4.0.0",
+    "chalk": "^4.1.0",
     "cli-spinner": "^0.2.10",
     "commander": "^5.1.0",
     "http-terminator": "^2.0.3",
